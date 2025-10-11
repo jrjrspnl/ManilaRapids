@@ -1,98 +1,169 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Link, useRouter } from "expo-router";
+import {
+  ArrowRight,
+  HeartHandshake,
+  PackageCheck,
+  RefreshCw,
+  ScrollText,
+  ShieldCheck,
+  Star,
+} from "lucide-react-native";
+import { Image, ScrollView, Text, View } from "react-native";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
-
-export default function HomeScreen() {
+import Button, { IconButton } from "../components/Button";
+export default function Index() {
+  const Logo = require("../../assets/images/mrapids-logo-1024x1024.png");
+  const Image1 = require("../../assets/images/image1.png");
+  const Image2 = require("../../assets/images/image2.png");
+  const router = useRouter();
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <ScrollView className="bg-white pt-7">
+      <View className="flex-row items-start px-4 mb-4">
+        <Image source={Logo} style={{ width: 100, height: 100 }} />
+        <View className="flex-1">
+          <Text className="text-2xl font-bold text-primary">
+            Magandang Araw,
+          </Text>
+          <View className="flex-row items-center ">
+            <Text className="text-xl font-semibold text-primary">User </Text>
+            <Button
+              containerClassName="px-3 py-1 !rounded-full items-center justify-center "
+              textClassName="text-xs"
+              onPress={() => router.push("/(tabs)/profile")}
+              iconRight={<ArrowRight size={15} color="white" />}
+            >
+              Set Up Profile
+            </Button>
+          </View>
+          <Text className="text-sm font-medium text-neutral-500">
+            Upang makapagpatuloy, kailangan mo munang kumpletuhin ang iyong
+            profile.
+          </Text>
+        </View>
+      </View>
+      <View className="h-40 p-4 bg-[#F4F4F4] mb-2">
+        <Text className="font-medium text-md text-primary">
+          My Document Requests
+        </Text>
+        <View className="flex-row items-center justify-center gap-10 mt-5">
+          <IconButton
+            onPress={() => {
+              router.push("/(profile)/history?tab=request");
+            }}
+            icon={<ScrollText color="white" />}
+          >
+            Requests
+          </IconButton>
+          <IconButton
+            onPress={() => router.push("/(profile)/history?tab=toProcess")}
+            icon={<RefreshCw color="white" />}
+          >
+            To Process
+          </IconButton>
+          <IconButton
+            onPress={() => router.push("/(profile)/history?tab=toReceive")}
+            icon={<PackageCheck color="white" />}
+          >
+            To Receive
+          </IconButton>
+          <IconButton
+            onPress={() => router.push("/(profile)/history?tab=completed")}
+            icon={<Star color="white" />}
+          >
+            To Rate
+          </IconButton>
+        </View>
+      </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <View className="p-4">
+        <Text className="mb-4 text-xl font-bold text-primary">
+          What would you like to request?
+        </Text>
+        <View className="gap-5">
+          <Button
+            containerClassName="py-5 !bg-[#F4F4F4] !rounded-lg "
+            textClassName="!text-primary text-lg font-medium"
+            withShadow={true}
+            iconLeft={<ScrollText size={25} color="#1d3557" />}
+          >
+            Civil Registry Documents
+          </Button>
+          <Button
+            containerClassName="py-5 !bg-[#F4F4F4] !rounded-lg "
+            textClassName="!text-primary text-lg font-medium"
+            withShadow={true}
+            iconLeft={<HeartHandshake size={25} color="#1d3557" />}
+          >
+            Community and Social Services
+          </Button>
+          <Button
+            containerClassName="py-5 !bg-[#F4F4F4] !rounded-lg "
+            textClassName="!text-primary text-lg font-medium"
+            withShadow={true}
+            iconLeft={<ShieldCheck size={25} color="#1d3557" />}
+          >
+            Clearance and Permits
+          </Button>
+          <View className="items-end">
+            <View className="flex-row ml">
+              <Link href="/(tabs)/documents">
+                <Text className="mr-1 text-neutral-400 text-medium">
+                  See more
+                </Text>
+              </Link>
+              <ArrowRight color="#A3A3A3" size={20}></ArrowRight>
+            </View>
+
+            {/* <Button
+              containerClassName="w-32 py-2 !rounded-full items-center justify-center"
+              textClassName="text-sm"
+              onPress={() => router.push("/(tabs)/documents")}
+              iconRight={<ArrowRight size={15} color="white" />}
+            >
+              See more
+            </Button> */}
+          </View>
+        </View>
+      </View>
+
+      <View className="p-4">
+        <Text className="mb-4 text-xl font-bold text-primary">
+          Discover Latest News
+        </Text>
+        <View className="gap-2 pb-10">
+          <Image source={Image1} className="object-cover w-full mb-2"></Image>
+          <Text className="text-lg font-bold">
+            BREAKING NEWS: Yorme Isko talks to the troops: Serve the people,
+            protect public welfare
+          </Text>
+          <Text className="text-xs text-neutral-400 mb">
+            September 21, 2025
+          </Text>
+          <Text className="text-md text-neutral-600 mb">
+            At 4:30 a.m. on Sunday, September 21, Manila City Mayor Francisco
+            Isko Moreno Domagoso addressed city government workers ahead of
+            their deployment to 14 protest sites across the capital, reminding
+            them that their mission is to serve the public. The deployment
+            covers Manila Health Department (MHD)...
+          </Text>
+        </View>
+        <View className="gap-2 pb-10">
+          <Image source={Image2} className="object-cover w-full mb-2"></Image>
+          <Text className="text-lg font-bold">
+            BREAKING NEWS: Saludo sa ating magigiting na kapulisan!
+          </Text>
+          <Text className="text-xs text-neutral-400 mb">
+            September 21, 2025
+          </Text>
+          <Text className="text-md text-neutral-600 mb">
+            Sa kabila ng tensyon na sumiklab sa Ayala Bridge sa pagitan ng mga
+            tauhan ng Manila Police District (MPD) at mga raliyista, nanindigan
+            ang ating kapulisan na ipatupad ang maximum tolerance. Hindi sila
+            nagpadaig sa agresibong hakbang ng mga nagpoprotesta na naghayag ng
+            kanilang galit laban sa korapsyon kaugnay ng flood control scam...
+          </Text>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
