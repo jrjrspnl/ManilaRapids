@@ -19,6 +19,7 @@ const Information_input = () => {
     sex: "",
     civilStatus: "",
     citizenship: "",
+    profilePhoto: "", 
   });
 
   const [address, setAddress] = useState({
@@ -41,11 +42,12 @@ const Information_input = () => {
     console.log("Personal:", personal);
     console.log("Address:", address);
     console.log("Contact:", contact);
-    console.log("Profile Photo:", profilePhoto);
+    console.log("Profile Photo:", personal.profilePhoto);
   };
 
   const handlePhotoTaken = (photoUri: string) => {
     setProfilePhoto(photoUri);
+    setPersonal({ ...personal, profilePhoto: photoUri }); 
     setIsCameraVisible(false);
   };
 
@@ -73,37 +75,38 @@ const Information_input = () => {
         </View>
 
         <View className="p-4 bg-white">
-          <View className="items-center mb-4">
-            <Text className="mb-2 text-sm font-semibold text-primary">
-              Profile Photo
-            </Text>
-            {profilePhoto ? (
-              <View className="items-center">
-                <Image
-                  source={{ uri: profilePhoto }}
-                  className="w-24 h-24 mb-2 rounded-full"
-                />
-                <TouchableOpacity
-                  onPress={() => setIsCameraVisible(true)}
-                  className="px-4 py-2 bg-primary rounded-xl"
-                >
-                  <Text className="text-sm text-white">Retake Photo</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <TouchableOpacity
-                onPress={() => setIsCameraVisible(true)}
-                className="items-center justify-center w-24 h-24 border-2 border-dashed rounded-full border-primary"
-              >
-                <Camera size={32} color="#3b82f6" />
-              </TouchableOpacity>
-            )}
-          </View>
-
           <View className="mt-5">
             <Text className="pb-2 mb-4 text-lg font-bold border-b text-primary border-accent-100">
               Personal Information
             </Text>
+
+            <View className="items-center mb-6 p-4 bg-neutral-50 rounded-lg">
+              <Text className="mb-3 text-sm font-semibold text-primary">
+                Profile Photo
+              </Text>
+              {personal.profilePhoto ? (
+                <View className="items-center">
+                  <Image
+                    source={{ uri: personal.profilePhoto }}
+                    className="w-24 h-24 mb-3 rounded-full"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setIsCameraVisible(true)}
+                    className="px-4 py-2 bg-primary rounded-xl"
+                  >
+                    <Text className="text-sm text-white">Retake Photo</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => setIsCameraVisible(true)}
+                  className="items-center justify-center w-24 h-24 border-2 border-dashed rounded-full border-primary bg-white"
+                >
+                  <Camera size={32} color="#3b82f6" />
+                  <Text className="mt-2 text-xs text-primary">Add Photo</Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
             <View className="space-y-4">
               <View>
@@ -236,6 +239,8 @@ const Information_input = () => {
               </View>
             </View>
           </View>
+
+          {/* Rest of your code remains the same */}
           <View className="mt-5">
             <Text className="pb-2 mb-4 text-lg font-bold border-b text-primary border-accent-100">
               Address Information
@@ -319,6 +324,7 @@ const Information_input = () => {
               />
             </View>
           </View>
+
           <View className="mt-5">
             <Text className="pb-2 mb-4 text-lg font-bold border-b text-primary border-accent-100">
               Contact Information
@@ -380,6 +386,7 @@ const Information_input = () => {
               </Text>
             </View>
           </View>
+
           <TouchableOpacity
             className="items-center py-4 mx-2 mt-10 mb-8 shadow-lg bg-primary rounded-xl shadow-primary/25"
             onPress={handleSave}
