@@ -1,3 +1,4 @@
+import { supabase } from "@/services/supabase-client";
 import { Link, useRouter } from "expo-router";
 import {
   ArrowRight,
@@ -8,14 +9,67 @@ import {
   ShieldCheck,
   Star,
 } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
 import { Image, ScrollView, Text, View } from "react-native";
-
 import Button, { IconButton } from "../components/Button";
 export default function Index() {
   const Logo = require("../../assets/images/mrapids-logo-1024x1024.png");
   const Image1 = require("../../assets/images/image1.png");
   const Image2 = require("../../assets/images/image2.png");
   const router = useRouter();
+
+  const [userName, setUserName] = useState("User");
+  const [isProfileComplete, setIsProfileComplete] = useState(false);
+
+  useEffect(() => {
+    let subscription: any;
+
+    const fetchUserProfile = async () => {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError || !user) return;
+
+      const { data: personalData } = await supabase
+        .from("personal")
+        .select("firstName,lastName,profilePhoto")
+        .eq("id", user.id)
+        .single();
+
+      if (personalData) {
+        setUserName(`${personalData.firstName} ${personalData.lastName}`);
+        setIsProfileComplete(
+          !!(personalData.firstName && personalData.lastName)
+        );
+      }
+
+      subscription = supabase
+        .channel(`personal_updates_user_${user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "personal",
+            filter: `id=eq.${user.id}`,
+          },
+          (payload) => {
+            const updated = payload.new;
+            setUserName(`${updated.firstName} ${updated.lastName}`);
+            setIsProfileComplete(!!(updated.firstName && updated.lastName));
+          }
+        )
+        .subscribe();
+    };
+
+    fetchUserProfile();
+
+    return () => {
+      if (subscription) subscription.unsubscribe();
+    };
+  }, []);
+
   return (
     <ScrollView className="bg-white pt-7">
       <View className="flex-row items-start px-4 mb-4">
@@ -25,20 +79,35 @@ export default function Index() {
             Magandang Araw,
           </Text>
           <View className="flex-row items-center ">
-            <Text className="text-xl font-semibold text-primary">User </Text>
+            <Text className="text-xl font-semibold text-primary">
+              {userName}
+            </Text>
+            {!isProfileComplete && (
+              <Button
+                containerClassName="px-3 py-1 !rounded-full items-center justify-center "
+                textClassName="text-xs"
+                onPress={() => router.push("/(tabs)/profile")}
+                iconRight={<ArrowRight size={15} color="white" />}
+              >
+                Set Up Profile
+              </Button>
+            )}
+          </View>
+          {!isProfileComplete ? (
+            <Text className="text-sm font-medium text-neutral-500">
+              Upang makapagpatuloy, kailangan mo munang kumpletuhin ang iyong
+              profile.
+            </Text>
+          ) : (
             <Button
-              containerClassName="px-3 py-1 !rounded-full items-center justify-center "
-              textClassName="text-xs"
+              containerClassName="px-2 py-3 !rounded-full items-center justify-center w-32 mt-1"
+              textClassName="text-sm"
               onPress={() => router.push("/(tabs)/profile")}
               iconRight={<ArrowRight size={15} color="white" />}
             >
-              Set Up Profile
+              View Profile
             </Button>
-          </View>
-          <Text className="text-sm font-medium text-neutral-500">
-            Upang makapagpatuloy, kailangan mo munang kumpletuhin ang iyong
-            profile.
-          </Text>
+          )}
         </View>
       </View>
       <View className="h-40 p-4 bg-[#F4F4F4] mb-2">
