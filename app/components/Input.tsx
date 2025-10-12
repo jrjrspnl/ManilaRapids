@@ -39,7 +39,7 @@ const Input = ({
           {text}
         </Text>
         {showError && error && (
-          <Text className="text-sm text-red-500">{error}</Text>
+          <Text className="text-xs text-red-500">{error}</Text>
         )}
       </View>
       <View className="relative">
