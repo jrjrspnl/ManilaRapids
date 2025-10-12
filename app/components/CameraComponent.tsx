@@ -1,14 +1,14 @@
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import { RotateCcw, X } from 'lucide-react-native';
-import React, { useRef, useState } from 'react';
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { RotateCcw, X } from "lucide-react-native";
+import React, { useRef, useState } from "react";
 import {
-    Alert,
-    Image,
-    Modal,
-    Text,
-    TouchableOpacity,
-    View
-} from 'react-native';
+  Alert,
+  Image,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface CameraComponentProps {
   onPhotoTaken: (photoUri: string) => void;
@@ -19,9 +19,9 @@ interface CameraComponentProps {
 const CameraComponent: React.FC<CameraComponentProps> = ({
   onPhotoTaken,
   visible,
-  onClose
+  onClose,
 }) => {
-  const [facing, setFacing] = useState<'front' | 'back'>('front');
+  const [facing, setFacing] = useState<"front" | "back">("front");
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState<string | null>(null);
   const cameraRef = useRef<CameraView>(null);
@@ -33,21 +33,21 @@ const CameraComponent: React.FC<CameraComponentProps> = ({
   if (!permission.granted) {
     return (
       <Modal visible={visible} animationType="slide">
-        <View className="flex-1 justify-center items-center p-6 bg-white">
-          <Text className="text-lg text-center mb-4 text-primary">
+        <View className="items-center justify-center flex-1 p-6 bg-white">
+          <Text className="mb-4 text-lg text-center text-primary">
             We need your permission to use the camera
           </Text>
           <TouchableOpacity
-            className="bg-primary rounded-xl py-3 px-6"
+            className="px-6 py-3 bg-primary rounded-xl"
             onPress={requestPermission}
           >
-            <Text className="text-white font-semibold">Grant Permission</Text>
+            <Text className="font-semibold text-white">Grant Permission</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className="mt-4 bg-neutral-200 rounded-xl py-3 px-6"
+            className="px-6 py-3 mt-4 bg-neutral-200 rounded-xl"
             onPress={onClose}
           >
-            <Text className="text-primary font-semibold">Cancel</Text>
+            <Text className="font-semibold text-primary">Cancel</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -63,7 +63,7 @@ const CameraComponent: React.FC<CameraComponentProps> = ({
         });
         setPhoto(photo.uri);
       } catch (error) {
-        Alert.alert('Error', 'Failed to take picture');
+        Alert.alert("Error", "Failed to take picture");
       }
     }
   };
@@ -81,7 +81,7 @@ const CameraComponent: React.FC<CameraComponentProps> = ({
   };
 
   const toggleCameraFacing = () => {
-    setFacing(current => (current === 'front' ? 'back' : 'front'));
+    setFacing((current) => (current === "front" ? "back" : "front"));
   };
 
   return (
@@ -91,26 +91,27 @@ const CameraComponent: React.FC<CameraComponentProps> = ({
           <>
             <CameraView
               ref={cameraRef}
-              className="flex-1"
+              style={{ flex: 1 }}
               facing={facing}
               mode="picture"
+              mirror={true}
             />
             <View className="absolute top-4 right-4">
               <TouchableOpacity
                 onPress={onClose}
-                className="bg-black/50 rounded-full p-2"
+                className="p-2 rounded-full bg-black/50"
               >
                 <X size={24} color="white" />
               </TouchableOpacity>
             </View>
-            <View className="absolute bottom-8 left-0 right-0 items-center">
+            <View className="absolute left-0 right-0 items-center bottom-8">
               <TouchableOpacity
                 onPress={takePicture}
-                className="bg-white rounded-full w-16 h-16 items-center justify-center border-4 border-primary"
+                className="items-center justify-center w-16 h-16 bg-white border-4 rounded-full border-primary"
               />
               <TouchableOpacity
                 onPress={toggleCameraFacing}
-                className="mt-4 bg-black/50 rounded-full p-3"
+                className="p-3 mt-4 rounded-full bg-black/50"
               >
                 <RotateCcw size={24} color="white" />
               </TouchableOpacity>
@@ -118,27 +119,31 @@ const CameraComponent: React.FC<CameraComponentProps> = ({
           </>
         ) : (
           <>
-            <Image source={{ uri: photo }} className="flex-1" resizeMode="contain" />
+            <Image
+              source={{ uri: photo }}
+              className="flex-1"
+              resizeMode="contain"
+            />
             <View className="absolute top-4 right-4">
               <TouchableOpacity
                 onPress={onClose}
-                className="bg-black/50 rounded-full p-2"
+                className="p-2 rounded-full bg-black/50"
               >
                 <X size={24} color="white" />
               </TouchableOpacity>
             </View>
-            <View className="absolute bottom-8 left-0 right-0 flex-row justify-center space-x-4">
+            <View className="absolute left-0 right-0 flex-row justify-center gap-5 space-x-4 bottom-8">
               <TouchableOpacity
                 onPress={retakePicture}
-                className="bg-red-500 rounded-xl py-3 px-6"
+                className="px-6 py-3 bg-red-500 rounded-xl"
               >
-                <Text className="text-white font-semibold">Retake</Text>
+                <Text className="font-semibold text-white">Retake</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={confirmPicture}
-                className="bg-primary rounded-xl py-3 px-6"
+                className="px-6 py-3 bg-primary rounded-xl"
               >
-                <Text className="text-white font-semibold">Use Photo</Text>
+                <Text className="font-semibold text-white">Use Photo</Text>
               </TouchableOpacity>
             </View>
           </>
