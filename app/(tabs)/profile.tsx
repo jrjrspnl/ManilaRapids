@@ -1,11 +1,16 @@
+import { supabase } from "@/services/supabase-client";
 import { Link, useRouter } from "expo-router";
 import { ChevronRight, Clock, Lock, QrCode, User } from "lucide-react-native";
-import React from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { supabase } from "@/services/supabase-client";
+import React, { useEffect, useState } from "react";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 const Profile = () => {
   const router = useRouter();
+
+  const [userName, setUserName] = useState("User");
+  const [isProfileComplete, setIsProfileComplete] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState("");
+
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -15,28 +20,76 @@ const Profile = () => {
     }
   };
 
+  useEffect(() => {
+    let subscription: any;
+
+    const fetchUserProfile = async () => {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError || !user) return;
+
+      const { data: personalData } = await supabase
+        .from("personal")
+        .select("firstName,lastName,profilePhoto")
+        .eq("id", user.id)
+        .single();
+
+      if (personalData) {
+        setUserName(`${personalData.firstName} ${personalData.lastName}`);
+        setProfilePhoto(personalData.profilePhoto || "");
+        setIsProfileComplete(
+          !!(personalData.firstName && personalData.lastName)
+        );
+      }
+
+      subscription = supabase
+        .channel(`personal_updates_user_${user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "personal",
+            filter: `id=eq.${user.id}`,
+          },
+          (payload) => {
+            const updated = payload.new;
+            setUserName(`${updated.firstName} ${updated.lastName}`);
+            setProfilePhoto(updated.profilePhoto || "");
+            setIsProfileComplete(!!(updated.firstName && updated.lastName));
+          }
+        )
+        .subscribe();
+    };
+
+    fetchUserProfile();
+
+    return () => {
+      if (subscription) subscription.unsubscribe();
+    };
+  }, []);
+
   return (
     <ScrollView className="bg-white">
-      <View className="flex-row items-center px-4 py-4 bg-primary">
-        <Text className="flex-1 text-xl font-bold text-center text-white">
-          M-RAPIDS
-        </Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <View className="items-center px-4 pt-10 bg-primary">
+        {profilePhoto ? (
+          <Image
+            source={{ uri: profilePhoto }}
+            className="w-24 h-24 mb-5 rounded-full"
+          />
+        ) : (
+          <View className="items-center justify-center w-24 h-24 mb-5 rounded-full bg-neutral-300">
+            <User size={40} color="#666" />
+          </View>
+        )}
 
-      <View className="items-center px-4 py-6 bg-primary">
-        <View className="items-center mb-4">
-          <Text className="text-xl font-bold text-white">
-            Balmond Dela Cruz
-          </Text>
-          <Text className="text-gray-200">Welcome Dela Cruz</Text>
-        </View>
-
-        <View className="flex-row items-center w-full max-w-xs px-4 py-3 bg-white rounded-lg">
+        <View className="flex-row items-center w-full max-w-xs px-4 py-3 mb-5 bg-white rounded-lg">
           <View className="flex-1">
             <Text className="text-sm text-gray-600">My Name</Text>
             <Text className="text-lg font-semibold text-primary">
-              Balmond Dela Cruz
+              {userName}
             </Text>
           </View>
           <ChevronRight size={20} color="#666" />

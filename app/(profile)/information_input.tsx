@@ -64,7 +64,11 @@ const Information_input = () => {
       address.zipCode,
       address.region,
       contact.phonePrimary,
-    ].some((field) => !field?.trim());
+    ].some((field) => {
+      if (field === null || field === undefined) return true;
+      if (typeof field === "string") return !field.trim();
+      return false;
+    });
   };
 
   const isValidPhoneNumber = /^09\d{9}$/;
@@ -473,7 +477,7 @@ const Information_input = () => {
                       labelField="label"
                       valueField="value"
                       placeholder="Select Civil Status"
-                      value={personal.sex}
+                      value={personal.civilStatus}
                       onChange={(item) =>
                         setPersonal({ ...personal, civilStatus: item.value })
                       }
@@ -679,7 +683,7 @@ const Information_input = () => {
                   text="Telephone Number"
                   labelClassName="text-primary"
                   inputClassName="!mb-0"
-                  placeholder="02XXXXXXXX or 0XXXXXXXXXX"
+                  placeholder="02XXXXXXXX"
                   value={contact.telephone}
                   onChangeText={(text) => {
                     const numbersOnly = text.replace(/[^0-9]/g, "");

@@ -73,7 +73,10 @@ export default function Index() {
   return (
     <ScrollView className="bg-white pt-7">
       <View className="flex-row items-start px-4 mb-4">
-        <Image source={Logo} style={{ width: 100, height: 100 }} />
+        <Image
+          source={Logo}
+          style={{ width: 100, height: 100, borderRadius: 9999 }}
+        />
         <View className="flex-1">
           <Text className="text-2xl font-bold text-primary">
             Magandang Araw,
