@@ -7,7 +7,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <SafeAreaView
-        className="flex-1 bg-black"
+        className="flex-1 bg-primary"
         edges={["top", "left", "right"]}
       >
         <ToastManager
