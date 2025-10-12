@@ -10,9 +10,9 @@ import {
 } from "react-native";
 import { Toast } from "toastify-react-native";
 
+import { supabase } from "@/services/supabase-client";
 import Button from "../components/Button";
 import Input from "../components/Input";
-import { supabase } from "@/services/supabase-client";
 const Login = () => {
   const Logo = require("../../assets/images/mrapids-logo-1024x1024.png");
   const [email, setEmail] = useState("");
