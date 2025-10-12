@@ -2,7 +2,15 @@ import { supabase } from "@/services/supabase-client";
 import { Link } from "expo-router";
 import { ArrowLeft, Camera } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { Toast } from "toastify-react-native";
 import CameraComponent from "../components/CameraComponent";
@@ -186,7 +194,14 @@ const Information_input = () => {
       }
     } catch (error) {
       console.error("Unexpected error:", error);
-      alert("An unexpected error occurred. Please try again.");
+      Toast.show({
+        type: "error",
+        text1: "An unexpected error occurred. Please try again.",
+        backgroundColor: "#e63946",
+        textColor: "#fff",
+        iconColor: "#fff",
+        progressBarColor: "#e63946",
+      });
     }
   };
 
@@ -231,461 +246,476 @@ const Information_input = () => {
           onClose={() => setIsCameraVisible(false)}
         />
       )}
-
-      <ScrollView className="flex-1 mb-10 bg-primary">
-        <View className="flex-row items-center px-4 py-4 bg-primary">
-          <Link href="/(tabs)/profile" asChild>
-            <TouchableOpacity>
-              <ArrowLeft size={24} color="white" />
-            </TouchableOpacity>
-          </Link>
-          <Text className="flex-1 text-xl font-bold text-center text-white">
-            My Information
-          </Text>
-          <View style={{ width: 24 }} />
-        </View>
-
-        <View className="p-4 bg-white">
-          <View>
-            <Text className="pb-2 mb-4 text-lg font-bold border-b text-primary border-accent-100">
-              Personal Information
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: "red" }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 15}
+      >
+        <ScrollView
+          className="flex-1 bg-primary"
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="flex-row items-center px-4 py-4 bg-primary">
+            <Link href="/(tabs)/profile" asChild>
+              <TouchableOpacity>
+                <ArrowLeft size={24} color="white" />
+              </TouchableOpacity>
+            </Link>
+            <Text className="flex-1 text-xl font-bold text-center text-white">
+              My Information
             </Text>
+            <View style={{ width: 24 }} />
+          </View>
 
-            <View className="items-center p-4 mb-6 rounded-lg bg-neutral-50">
-              <Text className="mb-3 text-sm font-semibold text-primary">
-                Profile Photo
+          <View className="p-4 bg-white">
+            <View>
+              <Text className="pb-2 mb-4 text-lg font-bold border-b text-primary border-accent-100">
+                Personal Information
               </Text>
-              {personal.profilePhoto ? (
-                <View className="items-center">
-                  <Image
-                    source={{ uri: personal.profilePhoto }}
-                    className="w-24 h-24 mb-3 rounded-full"
+
+              <View className="items-center p-4 mb-6 rounded-lg bg-neutral-50">
+                <Text className="mb-3 text-sm font-semibold text-primary">
+                  Profile Photo
+                </Text>
+                {personal.profilePhoto ? (
+                  <View className="items-center">
+                    <Image
+                      source={{ uri: personal.profilePhoto }}
+                      className="w-24 h-24 mb-3 rounded-full"
+                    />
+                    <TouchableOpacity
+                      onPress={() => setIsCameraVisible(true)}
+                      className="px-4 py-2 bg-primary rounded-xl"
+                    >
+                      <Text className="text-sm text-white">Retake Photo</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <>
+                    <TouchableOpacity
+                      onPress={() => setIsCameraVisible(true)}
+                      className="items-center justify-center w-24 h-24 bg-white border-2 border-dashed rounded-full border-primary"
+                    >
+                      <Camera size={32} color="#3b82f6" />
+                      <Text className="mt-2 text-xs text-primary">
+                        Add Photo
+                      </Text>
+                    </TouchableOpacity>
+                    <Text className="mt-2 text-xs text-red-500">Required</Text>
+                  </>
+                )}
+              </View>
+
+              <View className="space-y-4">
+                <View>
+                  <Input
+                    text="First Name *"
+                    labelClassName="text-primary"
+                    placeholder="Enter first name"
+                    value={personal.firstName}
+                    onChangeText={(text) =>
+                      setPersonal({ ...personal, firstName: text })
+                    }
+                    autoCapitalize="characters"
+                    error="Required"
+                    showError={personal.firstName.length === 0}
                   />
-                  <TouchableOpacity
-                    onPress={() => setIsCameraVisible(true)}
-                    className="px-4 py-2 bg-primary rounded-xl"
-                  >
-                    <Text className="text-sm text-white">Retake Photo</Text>
-                  </TouchableOpacity>
                 </View>
-              ) : (
-                <>
-                  <TouchableOpacity
-                    onPress={() => setIsCameraVisible(true)}
-                    className="items-center justify-center w-24 h-24 bg-white border-2 border-dashed rounded-full border-primary"
-                  >
-                    <Camera size={32} color="#3b82f6" />
-                    <Text className="mt-2 text-xs text-primary">Add Photo</Text>
-                  </TouchableOpacity>
-                  <Text className="mt-2 text-xs text-red-500">Required</Text>
-                </>
-              )}
+
+                <View>
+                  <Input
+                    text="Last Name *"
+                    labelClassName="text-primary"
+                    placeholder="Enter last name"
+                    value={personal.lastName}
+                    onChangeText={(text) =>
+                      setPersonal({ ...personal, lastName: text })
+                    }
+                    autoCapitalize="characters"
+                    error="Required"
+                    showError={personal.lastName.length === 0}
+                  />
+                </View>
+
+                <View>
+                  <Input
+                    text="Middle Name"
+                    labelClassName="text-primary"
+                    inputClassName="mb-0"
+                    placeholder="Enter middle name"
+                    value={personal.middleName}
+                    onChangeText={(text) =>
+                      setPersonal({ ...personal, middleName: text })
+                    }
+                    autoCapitalize="characters"
+                  />
+                </View>
+
+                <View className="mb-2">
+                  <Input
+                    text="Suffix"
+                    labelClassName="text-primary"
+                    inputClassName="!mb-0"
+                    placeholder="e.g., Jr., Sr., III"
+                    value={personal.suffix}
+                    onChangeText={(text) =>
+                      setPersonal({ ...personal, suffix: text })
+                    }
+                    autoCapitalize="characters"
+                  />
+                  <Text className="mt-1 text-xs text-neutral-500">
+                    Optional suffix
+                  </Text>
+                </View>
+
+                <View className="mb-2">
+                  <Input
+                    text="Date of Birth *"
+                    labelClassName="text-primary"
+                    inputClassName="!mb-0"
+                    placeholder="MM/DD/YYYY"
+                    value={formatDate(personal.dateOfBirth)}
+                    onChangeText={(text) => {
+                      const numbersOnly = text.replace(/[^0-9]/g, "");
+                      const limited = numbersOnly.slice(0, 8);
+                      setPersonal({ ...personal, dateOfBirth: limited });
+                    }}
+                    keyboardType="numeric"
+                    autoCapitalize="none"
+                    error={
+                      personal.dateOfBirth.length === 0
+                        ? "Required"
+                        : "Invalid date format"
+                    }
+                    showError={
+                      personal.dateOfBirth.length === 0 ||
+                      (personal.dateOfBirth.length > 0 &&
+                        !isValidDate.test(formatDate(personal.dateOfBirth)))
+                    }
+                  />
+                  <Text className="mt-1 text-xs text-neutral-500">
+                    Format: MM/DD/YYYY
+                  </Text>
+                </View>
+
+                <View>
+                  <Input
+                    text="Place of Birth *"
+                    labelClassName="text-primary"
+                    placeholder="e.g., Quezon City, Metro Manila"
+                    value={personal.placeOfBirth}
+                    onChangeText={(text) =>
+                      setPersonal({ ...personal, placeOfBirth: text })
+                    }
+                    autoCapitalize="characters"
+                    error="Required"
+                    showError={personal.placeOfBirth.length === 0}
+                  />
+                </View>
+
+                <View className="mb-4">
+                  <View className="flex-row justify-between flex-1">
+                    <Text className="mb-1 text-sm font-bold text-primary">
+                      Sex *
+                    </Text>
+                    {personal.sex.length === 0 && (
+                      <Text className="mt-1 text-xs text-red-500">
+                        Required
+                      </Text>
+                    )}
+                  </View>
+
+                  <View className="justify-center h-12 px-3 bg-white border border-gray-400 rounded-lg">
+                    <Dropdown
+                      style={{ flex: 1 }}
+                      placeholderStyle={{ color: "#888", fontSize: 14 }}
+                      selectedTextStyle={{ color: "#000", fontSize: 14 }}
+                      itemTextStyle={{ fontSize: 14 }}
+                      data={[
+                        { label: "Male", value: "Male" },
+                        { label: "Female", value: "Female" },
+                      ]}
+                      labelField="label"
+                      valueField="value"
+                      placeholder="Select Sex"
+                      value={personal.sex}
+                      onChange={(item) =>
+                        setPersonal({ ...personal, sex: item.value })
+                      }
+                    />
+                  </View>
+                </View>
+
+                <View className="mb-4">
+                  <View className="flex-row justify-between flex-1">
+                    <Text className="mb-1 text-sm font-bold text-primary">
+                      Civil Status *
+                    </Text>
+                    {personal.civilStatus.length === 0 && (
+                      <Text className="mt-1 text-xs text-red-500">
+                        Required
+                      </Text>
+                    )}
+                  </View>
+
+                  <View className="justify-center h-12 px-3 bg-white border border-gray-400 rounded-lg">
+                    <Dropdown
+                      style={{ flex: 1 }}
+                      placeholderStyle={{ color: "#888", fontSize: 14 }}
+                      selectedTextStyle={{ color: "#000", fontSize: 14 }}
+                      itemTextStyle={{ fontSize: 14 }}
+                      data={[
+                        { label: "Single", value: "Single" },
+                        { label: "Married", value: "Married" },
+                        { label: "Widowed", value: "Widowed" },
+                        { label: "Separated", value: "Separated" },
+                      ]}
+                      labelField="label"
+                      valueField="value"
+                      placeholder="Select Civil Status"
+                      value={personal.sex}
+                      onChange={(item) =>
+                        setPersonal({ ...personal, civilStatus: item.value })
+                      }
+                    />
+                  </View>
+                </View>
+
+                <View>
+                  <Input
+                    text="Citizenship *"
+                    labelClassName="text-primary"
+                    placeholder="Filipino, Dual Citizen, etc."
+                    value={personal.citizenship}
+                    onChangeText={(text) =>
+                      setPersonal({ ...personal, citizenship: text })
+                    }
+                    autoCapitalize="characters"
+                    error="Required"
+                    showError={personal.citizenship.length === 0}
+                  />
+                </View>
+              </View>
             </View>
 
-            <View className="space-y-4">
+            <View className="mt-5">
+              <Text className="pb-2 mb-4 text-lg font-bold border-b text-primary border-accent-100">
+                Address Information
+              </Text>
+
               <View>
                 <Input
-                  text="First Name *"
+                  text="House No. / Street *"
                   labelClassName="text-primary"
-                  placeholder="Enter first name"
-                  value={personal.firstName}
+                  placeholder="e.g., 123 J.P. Rizal St."
+                  value={address.houseNoStreet}
                   onChangeText={(text) =>
-                    setPersonal({ ...personal, firstName: text })
+                    setAddress({ ...address, houseNoStreet: text })
                   }
                   autoCapitalize="characters"
                   error="Required"
-                  showError={personal.firstName.length === 0}
+                  showError={address.houseNoStreet.length === 0}
                 />
               </View>
 
               <View>
                 <Input
-                  text="Last Name *"
+                  text="Barangay *"
                   labelClassName="text-primary"
-                  placeholder="Enter last name"
-                  value={personal.lastName}
+                  placeholder="e.g., Barangay Poblacion"
+                  value={address.barangay}
                   onChangeText={(text) =>
-                    setPersonal({ ...personal, lastName: text })
+                    setAddress({ ...address, barangay: text })
                   }
                   autoCapitalize="characters"
                   error="Required"
-                  showError={personal.lastName.length === 0}
+                  showError={address.barangay.length === 0}
                 />
               </View>
 
               <View>
                 <Input
-                  text="Middle Name"
+                  text="City / Municipality *"
                   labelClassName="text-primary"
-                  inputClassName="mb-0"
-                  placeholder="Enter middle name"
-                  value={personal.middleName}
+                  placeholder="e.g., Makati City"
+                  value={address.cityMunicipality}
                   onChangeText={(text) =>
-                    setPersonal({ ...personal, middleName: text })
+                    setAddress({ ...address, cityMunicipality: text })
                   }
                   autoCapitalize="characters"
+                  error="Required"
+                  showError={address.cityMunicipality.length === 0}
                 />
               </View>
 
-              <View className="mb-2">
+              <View>
                 <Input
-                  text="Suffix"
+                  text="Province *"
                   labelClassName="text-primary"
-                  inputClassName="!mb-0"
-                  placeholder="e.g., Jr., Sr., III"
-                  value={personal.suffix}
+                  placeholder="e.g., Metro Manila"
+                  value={address.province}
                   onChangeText={(text) =>
-                    setPersonal({ ...personal, suffix: text })
+                    setAddress({ ...address, province: text })
                   }
                   autoCapitalize="characters"
+                  error="Required"
+                  showError={address.province.length === 0}
                 />
-                <Text className="mt-1 text-xs text-neutral-500">
-                  Optional suffix
-                </Text>
               </View>
 
-              <View className="mb-2">
+              <View>
                 <Input
-                  text="Date of Birth *"
+                  text="ZIP Code *"
                   labelClassName="text-primary"
-                  inputClassName="!mb-0"
-                  placeholder="MM/DD/YYYY"
-                  value={formatDate(personal.dateOfBirth)}
+                  placeholder="e.g., 1100"
+                  value={address.zipCode}
                   onChangeText={(text) => {
                     const numbersOnly = text.replace(/[^0-9]/g, "");
-                    const limited = numbersOnly.slice(0, 8);
-                    setPersonal({ ...personal, dateOfBirth: limited });
+
+                    const limited = numbersOnly.slice(0, 4);
+                    setAddress({ ...address, zipCode: limited });
                   }}
                   keyboardType="numeric"
                   autoCapitalize="none"
                   error={
-                    personal.dateOfBirth.length === 0
+                    address.zipCode.length === 0
                       ? "Required"
-                      : "Invalid date format"
+                      : "ZIP Code must be 4 digits"
                   }
                   showError={
-                    personal.dateOfBirth.length === 0 ||
-                    (personal.dateOfBirth.length > 0 &&
-                      !isValidDate.test(formatDate(personal.dateOfBirth)))
+                    address.zipCode.length === 0 ||
+                    (address.zipCode.length > 0 && address.zipCode.length !== 4)
+                  }
+                />
+              </View>
+
+              <View>
+                <Input
+                  text="Region *"
+                  labelClassName="text-primary"
+                  placeholder="e.g., NCR"
+                  value={address.region}
+                  onChangeText={(text) =>
+                    setAddress({ ...address, region: text })
+                  }
+                  autoCapitalize="characters"
+                  error="Required"
+                  showError={address.region.length === 0}
+                />
+              </View>
+            </View>
+
+            <View className="mt-5">
+              <Text className="pb-2 mb-4 text-lg font-bold border-b text-primary border-accent-100">
+                Contact Information
+              </Text>
+
+              <View>
+                <Input
+                  text="Primary Phone Number *"
+                  labelClassName="text-primary"
+                  placeholder="09XXXXXXXXX"
+                  value={contact.phonePrimary}
+                  onChangeText={(text) => {
+                    const numbersOnly = text.replace(/[^0-9]/g, "");
+                    const limited = numbersOnly.slice(0, 11);
+                    setContact({ ...contact, phonePrimary: limited });
+                  }}
+                  keyboardType="numeric"
+                  autoCapitalize="none"
+                  error={
+                    contact.phonePrimary.length === 0
+                      ? "Required"
+                      : "Invalid Phone No. Format"
+                  }
+                  showError={
+                    contact.phonePrimary.length === 0 ||
+                    (contact.phonePrimary.length > 0 &&
+                      !isValidPhoneNumber.test(contact.phonePrimary))
+                  }
+                />
+              </View>
+
+              <View className="mb-2">
+                <Input
+                  text="Alternate Phone Number *"
+                  labelClassName="text-primary"
+                  inputClassName="!mb-0"
+                  placeholder="09XXXXXXXXX"
+                  value={contact.phoneAlternate}
+                  onChangeText={(text) => {
+                    const numbersOnly = text.replace(/[^0-9]/g, "");
+                    const limited = numbersOnly.slice(0, 11);
+                    setContact({ ...contact, phoneAlternate: limited });
+                  }}
+                  keyboardType="numeric"
+                  autoCapitalize="none"
+                  error="Invalid Phone No. Format"
+                  showError={
+                    contact.phoneAlternate.length > 0 &&
+                    !isValidPhoneNumber.test(contact.phoneAlternate)
+                  }
+                />
+                <Text className="mt-1 text-xs text-neutral-500">Optional</Text>
+              </View>
+
+              <View>
+                <Input
+                  text="Email Address"
+                  labelClassName="text-primary"
+                  placeholder="email@example.com"
+                  value={contact.email}
+                  onChangeText={(text) =>
+                    setContact({ ...contact, email: text })
+                  }
+                  autoCapitalize="none"
+                  editable={false}
+                  inputClassName="bg-gray-100 text-gray-600"
+                />
+              </View>
+
+              <View className="mb-2">
+                <Input
+                  text="Telephone Number"
+                  labelClassName="text-primary"
+                  inputClassName="!mb-0"
+                  placeholder="02XXXXXXXX or 0XXXXXXXXXX"
+                  value={contact.telephone}
+                  onChangeText={(text) => {
+                    const numbersOnly = text.replace(/[^0-9]/g, "");
+                    const limited = numbersOnly.slice(0, 10);
+                    setContact({ ...contact, telephone: limited });
+                  }}
+                  keyboardType="numeric"
+                  autoCapitalize="none"
+                  error="Invalid Landline Format"
+                  showError={
+                    contact.telephone.length > 0 &&
+                    !isValidLandline.test(contact.telephone)
                   }
                 />
                 <Text className="mt-1 text-xs text-neutral-500">
-                  Format: MM/DD/YYYY
+                  Optional (for landline users)
                 </Text>
               </View>
-
-              <View>
-                <Input
-                  text="Place of Birth *"
-                  labelClassName="text-primary"
-                  placeholder="e.g., Quezon City, Metro Manila"
-                  value={personal.placeOfBirth}
-                  onChangeText={(text) =>
-                    setPersonal({ ...personal, placeOfBirth: text })
-                  }
-                  autoCapitalize="characters"
-                  error="Required"
-                  showError={personal.placeOfBirth.length === 0}
-                />
-              </View>
-
-              <View className="mb-4">
-                <View className="flex-row justify-between flex-1">
-                  <Text className="mb-1 text-sm font-bold text-primary">
-                    Sex *
-                  </Text>
-                  {personal.sex.length === 0 && (
-                    <Text className="mt-1 text-xs text-red-500">Required</Text>
-                  )}
-                </View>
-
-                <View className="justify-center h-12 px-3 bg-white border border-gray-400 rounded-lg">
-                  <Dropdown
-                    style={{ flex: 1 }}
-                    placeholderStyle={{ color: "#888", fontSize: 14 }}
-                    selectedTextStyle={{ color: "#000", fontSize: 14 }}
-                    itemTextStyle={{ fontSize: 14 }}
-                    data={[
-                      { label: "Male", value: "Male" },
-                      { label: "Female", value: "Female" },
-                    ]}
-                    labelField="label"
-                    valueField="value"
-                    placeholder="Select Sex"
-                    value={personal.sex}
-                    onChange={(item) =>
-                      setPersonal({ ...personal, sex: item.value })
-                    }
-                  />
-                </View>
-              </View>
-
-              <View className="mb-4">
-                <View className="flex-row justify-between flex-1">
-                  <Text className="mb-1 text-sm font-bold text-primary">
-                    Civil Status *
-                  </Text>
-                  {personal.civilStatus.length === 0 && (
-                    <Text className="mt-1 text-xs text-red-500">Required</Text>
-                  )}
-                </View>
-
-                <View className="justify-center h-12 px-3 bg-white border border-gray-400 rounded-lg">
-                  <Dropdown
-                    style={{ flex: 1 }}
-                    placeholderStyle={{ color: "#888", fontSize: 14 }}
-                    selectedTextStyle={{ color: "#000", fontSize: 14 }}
-                    itemTextStyle={{ fontSize: 14 }}
-                    data={[
-                      { label: "Single", value: "Single" },
-                      { label: "Married", value: "Married" },
-                      { label: "Widowed", value: "Widowed" },
-                      { label: "Separated", value: "Separated" },
-                    ]}
-                    labelField="label"
-                    valueField="value"
-                    placeholder="Select Civil Status"
-                    value={personal.sex}
-                    onChange={(item) =>
-                      setPersonal({ ...personal, civilStatus: item.value })
-                    }
-                  />
-                </View>
-              </View>
-
-              <View>
-                <Input
-                  text="Citizenship *"
-                  labelClassName="text-primary"
-                  placeholder="Filipino, Dual Citizen, etc."
-                  value={personal.citizenship}
-                  onChangeText={(text) =>
-                    setPersonal({ ...personal, citizenship: text })
-                  }
-                  autoCapitalize="characters"
-                  error="Required"
-                  showError={personal.citizenship.length === 0}
-                />
-              </View>
-            </View>
-          </View>
-
-          {/* Rest of your code remains the same */}
-          <View className="mt-5">
-            <Text className="pb-2 mb-4 text-lg font-bold border-b text-primary border-accent-100">
-              Address Information
-            </Text>
-
-            <View>
-              <Input
-                text="House No. / Street *"
-                labelClassName="text-primary"
-                placeholder="e.g., 123 J.P. Rizal St."
-                value={address.houseNoStreet}
-                onChangeText={(text) =>
-                  setAddress({ ...address, houseNoStreet: text })
-                }
-                autoCapitalize="characters"
-                error="Required"
-                showError={address.houseNoStreet.length === 0}
-              />
             </View>
 
-            <View>
-              <Input
-                text="Barangay *"
-                labelClassName="text-primary"
-                placeholder="e.g., Barangay Poblacion"
-                value={address.barangay}
-                onChangeText={(text) =>
-                  setAddress({ ...address, barangay: text })
-                }
-                autoCapitalize="characters"
-                error="Required"
-                showError={address.barangay.length === 0}
-              />
-            </View>
-
-            <View>
-              <Input
-                text="City / Municipality *"
-                labelClassName="text-primary"
-                placeholder="e.g., Makati City"
-                value={address.cityMunicipality}
-                onChangeText={(text) =>
-                  setAddress({ ...address, cityMunicipality: text })
-                }
-                autoCapitalize="characters"
-                error="Required"
-                showError={address.cityMunicipality.length === 0}
-              />
-            </View>
-
-            <View>
-              <Input
-                text="Province *"
-                labelClassName="text-primary"
-                placeholder="e.g., Metro Manila"
-                value={address.province}
-                onChangeText={(text) =>
-                  setAddress({ ...address, province: text })
-                }
-                autoCapitalize="characters"
-                error="Required"
-                showError={address.province.length === 0}
-              />
-            </View>
-
-            <View>
-              <Input
-                text="ZIP Code *"
-                labelClassName="text-primary"
-                placeholder="e.g., 1100"
-                value={address.zipCode}
-                onChangeText={(text) => {
-                  const numbersOnly = text.replace(/[^0-9]/g, "");
-
-                  const limited = numbersOnly.slice(0, 4);
-                  setAddress({ ...address, zipCode: limited });
-                }}
-                keyboardType="numeric"
-                autoCapitalize="none"
-                error={
-                  address.zipCode.length === 0
-                    ? "Required"
-                    : "ZIP Code must be 4 digits"
-                }
-                showError={
-                  address.zipCode.length === 0 ||
-                  (address.zipCode.length > 0 && address.zipCode.length !== 4)
-                }
-              />
-            </View>
-
-            <View>
-              <Input
-                text="Region *"
-                labelClassName="text-primary"
-                placeholder="e.g., NCR"
-                value={address.region}
-                onChangeText={(text) =>
-                  setAddress({ ...address, region: text })
-                }
-                autoCapitalize="characters"
-                error="Required"
-                showError={address.region.length === 0}
-              />
-            </View>
-          </View>
-
-          <View className="mt-5">
-            <Text className="pb-2 mb-4 text-lg font-bold border-b text-primary border-accent-100">
-              Contact Information
-            </Text>
-
-            <View>
-              <Input
-                text="Primary Phone Number *"
-                labelClassName="text-primary"
-                placeholder="09XXXXXXXXX"
-                value={contact.phonePrimary}
-                onChangeText={(text) => {
-                  const numbersOnly = text.replace(/[^0-9]/g, "");
-                  const limited = numbersOnly.slice(0, 11);
-                  setContact({ ...contact, phonePrimary: limited });
-                }}
-                keyboardType="numeric"
-                autoCapitalize="none"
-                error={
-                  contact.phonePrimary.length === 0
-                    ? "Required"
-                    : "Invalid Phone No. Format"
-                }
-                showError={
-                  contact.phonePrimary.length === 0 ||
-                  (contact.phonePrimary.length > 0 &&
-                    !isValidPhoneNumber.test(contact.phonePrimary))
-                }
-              />
-            </View>
-
-            <View className="mb-2">
-              <Input
-                text="Alternate Phone Number *"
-                labelClassName="text-primary"
-                inputClassName="!mb-0"
-                placeholder="09XXXXXXXXX"
-                value={contact.phoneAlternate}
-                onChangeText={(text) => {
-                  const numbersOnly = text.replace(/[^0-9]/g, "");
-                  const limited = numbersOnly.slice(0, 11);
-                  setContact({ ...contact, phoneAlternate: limited });
-                }}
-                keyboardType="numeric"
-                autoCapitalize="none"
-                error="Invalid Phone No. Format"
-                showError={
-                  contact.phoneAlternate.length > 0 &&
-                  !isValidPhoneNumber.test(contact.phoneAlternate)
-                }
-              />
-              <Text className="mt-1 text-xs text-neutral-500">Optional</Text>
-            </View>
-
-            <View>
-              <Input
-                text="Email Address"
-                labelClassName="text-primary"
-                placeholder="email@example.com"
-                value={contact.email}
-                onChangeText={(text) => setContact({ ...contact, email: text })}
-                autoCapitalize="none"
-                editable={false}
-                inputClassName="bg-gray-100 text-gray-600"
-              />
-            </View>
-
-            <View className="mb-2">
-              <Input
-                text="Telephone Number"
-                labelClassName="text-primary"
-                inputClassName="!mb-0"
-                placeholder="02XXXXXXXX or 0XXXXXXXXXX"
-                value={contact.telephone}
-                onChangeText={(text) => {
-                  const numbersOnly = text.replace(/[^0-9]/g, "");
-                  const limited = numbersOnly.slice(0, 10);
-                  setContact({ ...contact, telephone: limited });
-                }}
-                keyboardType="numeric"
-                autoCapitalize="none"
-                error="Invalid Landline Format"
-                showError={
-                  contact.telephone.length > 0 &&
-                  !isValidLandline.test(contact.telephone)
-                }
-              />
-              <Text className="mt-1 text-xs text-neutral-500">
-                Optional (for landline users)
+            <TouchableOpacity
+              className={`items-center py-4 mx-2 mt-10 mb-8 shadow-lg ${
+                inputValidation()
+                  ? "bg-gray-400 shadow-gray-400/25 rounded-lg"
+                  : "bg-primary shadow-primary/25 rounded-lg"
+              }`}
+              onPress={handleSave}
+              disabled={inputValidation()}
+            >
+              <Text className="text-lg font-semibold text-white">
+                Save Changes
               </Text>
-            </View>
+            </TouchableOpacity>
           </View>
-
-          <TouchableOpacity
-            className={`items-center py-4 mx-2 mt-10 mb-8 shadow-lg ${
-              inputValidation()
-                ? "bg-gray-400 shadow-gray-400/25 rounded-lg"
-                : "bg-primary shadow-primary/25 rounded-lg"
-            }`}
-            onPress={handleSave}
-            disabled={inputValidation()}
-          >
-            <Text className="text-lg font-semibold text-white">
-              Save Changes
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </>
   );
 };

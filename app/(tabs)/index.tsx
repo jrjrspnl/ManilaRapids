@@ -80,7 +80,7 @@ export default function Index() {
           </Text>
           <View className="flex-row items-center ">
             <Text className="text-xl font-semibold text-primary">
-              {userName}
+              {userName}{" "}
             </Text>
             {!isProfileComplete && (
               <Button
