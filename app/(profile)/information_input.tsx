@@ -270,8 +270,14 @@ const Information_input = () => {
             </Text>
             <View style={{ width: 24 }} />
           </View>
-
-          <View className="p-4 bg-white">
+          <View className="bg-white">
+            <Text className="px-4 pt-4 text-neutral-500">
+              The personal information you provide will be used for verifying
+              your identity and processing official documents. Please ensure all
+              details are correct.
+            </Text>
+          </View>
+          <View className="p-4 bg-white ">
             <View>
               <Text className="pb-2 mb-4 text-lg font-bold border-b text-primary border-accent-100">
                 Personal Information
@@ -703,7 +709,16 @@ const Information_input = () => {
                 </Text>
               </View>
             </View>
-
+            <View>
+              <Text className="pt-2 text-sm text-center text-neutral-500">
+                By submitting,{" "}
+                <Text className="font-bold text-primary">
+                  I certify that the information provided is true and correct
+                </Text>
+                , and I consent to its use for official government document
+                processing.
+              </Text>
+            </View>
             <TouchableOpacity
               className={`items-center py-4 mx-2 mt-10 mb-8 shadow-lg ${
                 inputValidation()
