@@ -1,8 +1,16 @@
 import { supabase } from "@/services/supabase-client";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { ChevronRight, Clock, Lock, QrCode, User } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import QRCode from "react-native-qrcode-svg";
 
 const Profile = () => {
   const router = useRouter();
@@ -10,6 +18,8 @@ const Profile = () => {
   const [userName, setUserName] = useState("User");
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState("");
+  const [qrData, setQrData] = useState("");
+  const [isLoadingQR, setIsLoadingQR] = useState(true);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -30,9 +40,24 @@ const Profile = () => {
       } = await supabase.auth.getUser();
       if (authError || !user) return;
 
+      // Fetch personal data
       const { data: personalData } = await supabase
         .from("personal")
-        .select("firstName,lastName,profilePhoto")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      // Fetch address data
+      const { data: addressData } = await supabase
+        .from("address")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      // Fetch contact data
+      const { data: contactData } = await supabase
+        .from("contact")
+        .select("*")
         .eq("id", user.id)
         .single();
 
@@ -42,6 +67,17 @@ const Profile = () => {
         setIsProfileComplete(
           !!(personalData.firstName && personalData.lastName)
         );
+
+        // Generate QR code data
+        const qrCodeData = JSON.stringify({
+          userId: user.id,
+          personal: personalData,
+          address: addressData || {},
+          contact: contactData || {},
+          generatedAt: new Date().toISOString(),
+        });
+        setQrData(qrCodeData);
+        setIsLoadingQR(false);
       }
 
       subscription = supabase
@@ -54,11 +90,33 @@ const Profile = () => {
             table: "personal",
             filter: `id=eq.${user.id}`,
           },
-          (payload) => {
+          async (payload) => {
             const updated = payload.new;
             setUserName(`${updated.firstName} ${updated.lastName}`);
             setProfilePhoto(updated.profilePhoto || "");
             setIsProfileComplete(!!(updated.firstName && updated.lastName));
+
+            // Refetch all data for QR code
+            const { data: addressData } = await supabase
+              .from("address")
+              .select("*")
+              .eq("id", user.id)
+              .single();
+
+            const { data: contactData } = await supabase
+              .from("contact")
+              .select("*")
+              .eq("id", user.id)
+              .single();
+
+            const qrCodeData = JSON.stringify({
+              userId: user.id,
+              personal: updated,
+              address: addressData || {},
+              contact: contactData || {},
+              generatedAt: new Date().toISOString(),
+            });
+            setQrData(qrCodeData);
           }
         )
         .subscribe();
@@ -97,62 +155,65 @@ const Profile = () => {
       </View>
 
       <View className="px-4 py-0">
-        <Link href="/(profile)/information_input" asChild>
-          <TouchableOpacity className="flex-row items-center justify-between py-4 border-b border-gray-200">
-            <View className="flex-row items-center">
-              <View className="items-center justify-center w-10 h-10 mr-3 rounded-full bg-primary">
-                <User size={20} color="#ffffff" />
-              </View>
-              <View>
-                <Text className="text-lg font-semibold text-primary">
-                  My Information
-                </Text>
-                <Text className="text-sm text-gray-600">
-                  View and update your personal details
-                </Text>
-              </View>
+        <TouchableOpacity
+          className="flex-row items-center justify-between py-4 border-b border-gray-200"
+          onPress={() => router.push("/(profile)/information_input")}
+        >
+          <View className="flex-row items-center">
+            <View className="items-center justify-center w-10 h-10 mr-3 rounded-full bg-primary">
+              <User size={20} color="#ffffff" />
             </View>
-            <ChevronRight size={20} color="#666" />
-          </TouchableOpacity>
-        </Link>
+            <View>
+              <Text className="text-lg font-semibold text-primary">
+                My Information
+              </Text>
+              <Text className="text-sm text-gray-600">
+                View and update your personal details
+              </Text>
+            </View>
+          </View>
+          <ChevronRight size={20} color="#666" />
+        </TouchableOpacity>
 
-        <Link href="/(profile)/history" asChild>
-          <TouchableOpacity className="flex-row items-center justify-between py-4 border-b border-gray-200">
-            <View className="flex-row items-center">
-              <View className="items-center justify-center w-10 h-10 mr-3 rounded-full bg-primary">
-                <Clock size={20} color="#ffffff" />
-              </View>
-              <View>
-                <Text className="text-lg font-semibold text-primary">
-                  History
-                </Text>
-                <Text className="text-sm text-gray-600">
-                  View your request history
-                </Text>
-              </View>
+        <TouchableOpacity
+          className="flex-row items-center justify-between py-4 border-b border-gray-200"
+          onPress={() => router.push("/(profile)/history")}
+        >
+          <View className="flex-row items-center">
+            <View className="items-center justify-center w-10 h-10 mr-3 rounded-full bg-primary">
+              <Clock size={20} color="#ffffff" />
             </View>
-            <ChevronRight size={20} color="#666" />
-          </TouchableOpacity>
-        </Link>
+            <View>
+              <Text className="text-lg font-semibold text-primary">
+                History
+              </Text>
+              <Text className="text-sm text-gray-600">
+                View your request history
+              </Text>
+            </View>
+          </View>
+          <ChevronRight size={20} color="#666" />
+        </TouchableOpacity>
 
-        <Link href="/(profile)/change_password" asChild>
-          <TouchableOpacity className="flex-row items-center justify-between py-4 border-b border-gray-200">
-            <View className="flex-row items-center">
-              <View className="items-center justify-center w-10 h-10 mr-3 rounded-full bg-primary">
-                <Lock size={20} color="#ffffff" />
-              </View>
-              <View>
-                <Text className="text-lg font-semibold text-primary">
-                  Change Password
-                </Text>
-                <Text className="text-sm text-gray-600">
-                  Update your password
-                </Text>
-              </View>
+        <TouchableOpacity
+          className="flex-row items-center justify-between py-4 border-b border-gray-200"
+          onPress={() => router.push("/(profile)/change_password")}
+        >
+          <View className="flex-row items-center">
+            <View className="items-center justify-center w-10 h-10 mr-3 rounded-full bg-primary">
+              <Lock size={20} color="#ffffff" />
             </View>
-            <ChevronRight size={20} color="#666" />
-          </TouchableOpacity>
-        </Link>
+            <View>
+              <Text className="text-lg font-semibold text-primary">
+                Change Password
+              </Text>
+              <Text className="text-sm text-gray-600">
+                Update your password
+              </Text>
+            </View>
+          </View>
+          <ChevronRight size={20} color="#666" />
+        </TouchableOpacity>
       </View>
 
       <View className="items-center px-4 py-6 bg-gray-50">
@@ -160,10 +221,35 @@ const Profile = () => {
           My QR Code
         </Text>
 
-        <View className="items-center justify-center w-32 h-32 mb-3 bg-gray-200 rounded-lg">
-          <QrCode size={50} color="#666" />
-          <Text className="mt-2 text-xs text-gray-600">QR Code</Text>
-        </View>
+        {isLoadingQR && (
+          <View className="items-center justify-center w-48 h-48 bg-white rounded-lg">
+            <ActivityIndicator size="large" color="#3b82f6" />
+            <Text className="mt-2 text-sm text-gray-600">Generating QR...</Text>
+          </View>
+        )}
+
+        {!isLoadingQR && qrData && (
+          <View className="p-4 bg-white rounded-lg shadow-sm">
+            <QRCode
+              value={qrData}
+              size={200}
+              backgroundColor="white"
+              color="black"
+            />
+            <Text className="mt-3 text-xs text-center text-gray-600">
+              Scan to view your information
+            </Text>
+          </View>
+        )}
+
+        {!isLoadingQR && !qrData && (
+          <View className="items-center justify-center w-48 h-48 bg-gray-200 rounded-lg">
+            <QrCode size={50} color="#666" />
+            <Text className="mt-2 text-xs text-gray-600">
+              Complete your profile to generate QR
+            </Text>
+          </View>
+        )}
       </View>
 
       <View className="px-4 py-6">
