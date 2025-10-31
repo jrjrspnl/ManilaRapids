@@ -157,8 +157,9 @@ export default function Index() {
             textClassName="!text-primary text-lg font-medium"
             withShadow={true}
             iconLeft={<ScrollText size={25} color="#1d3557" />}
+            onPress={() => router.push("/(docu)/BirthCertificate/Upload")}
           >
-            Civil Registry Documents
+            Birth Certificate
           </Button>
           <Button
             containerClassName="py-5 !bg-[#F4F4F4] !rounded-lg "
