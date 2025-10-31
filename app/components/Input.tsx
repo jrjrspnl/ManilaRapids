@@ -45,7 +45,7 @@ const Input = ({
       <View className="relative">
         <TextInput
           placeholderTextColor="#989898"
-          className={`h-12 pl-4 pr-12 mb-4 border rounded-lg ${
+          className={`h-12 pl-4 pr-12 mb-4 border rounded-lg font-semibold text-neutral-700 ${
             isFocused ? "border-primary/70 border-2" : "border-gray-400"
           } ${inputClassName || ""}`}
           onFocus={() => setIsFocused(true)}
