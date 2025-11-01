@@ -1,11 +1,35 @@
+import CameraComponent from "@/app/components/CameraComponent";
 import { Link, router } from "expo-router";
 import { ArrowLeft, Camera, ImagePlus } from "lucide-react-native";
-import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 
 const Upload = () => {
+  const [showScanner, setShowScanner] = useState(false);
+
+  const handleQRScan = (data: string) => {
+    try {
+      const parsedData = JSON.parse(data);
+
+      // Navigate to Step1 with the scanned data
+      router.push({
+        pathname: "/(docu)/BirthCertificate/Step1",
+        params: { qrData: data },
+      });
+    } catch (error) {
+      Alert.alert("Invalid QR Code", "The scanned QR code is not valid.");
+    }
+  };
+
   return (
     <View>
+      <CameraComponent
+        visible={showScanner}
+        onClose={() => setShowScanner(false)}
+        onQRScanned={handleQRScan}
+        mode="qr"
+      />
+
       <View className="flex-row items-center px-4 py-4 bg-primary">
         <Link href="/(tabs)" asChild>
           <TouchableOpacity>
@@ -17,8 +41,9 @@ const Upload = () => {
         </Text>
         <View style={{ width: 24 }} />
       </View>
-      <View className="px-5 mt-10 ">
-        <View className="">
+
+      <View className="px-5 mt-10">
+        <View>
           <Text className="text-2xl font-bold text-primary">
             Upload a photo of your QR code
           </Text>
@@ -32,7 +57,7 @@ const Upload = () => {
         <View className="mt-5">
           <TouchableOpacity activeOpacity={0.8}>
             <View className="items-center justify-center h-64 border-2 border-solid rounded-2xl border-primary/70 bg-neutral-200">
-              <ImagePlus color="grey"></ImagePlus>
+              <ImagePlus color="grey" />
               <Text className="my-2 text-neutral-500">Select file</Text>
             </View>
           </TouchableOpacity>
@@ -48,10 +73,10 @@ const Upload = () => {
           <TouchableOpacity
             activeOpacity={0.8}
             className="py-3 rounded-full bg-primary"
-            onPress={() => router.push("/(docu)/BirthCertificate/Step1")}
+            onPress={() => setShowScanner(true)}
           >
             <View className="flex-row items-center justify-center gap-2">
-              <Camera color="white"></Camera>
+              <Camera color="white" />
               <Text className="font-medium text-white">
                 Open Camera & Scan QR
               </Text>
