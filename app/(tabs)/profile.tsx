@@ -1,6 +1,13 @@
 import { supabase } from "@/services/supabase-client";
 import { useRouter } from "expo-router";
-import { ChevronRight, Clock, Lock, QrCode, User } from "lucide-react-native";
+import {
+  ChevronRight,
+  Clock,
+  Download,
+  Lock,
+  QrCode,
+  User,
+} from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -239,6 +246,14 @@ const Profile = () => {
             <Text className="mt-3 text-xs text-center text-gray-600">
               Scan to view your information
             </Text>
+            <TouchableOpacity className="flex-row items-center justify-center px-6 py-3 mt-4 rounded-lg bg-primary">
+              <>
+                <Download size={20} color="#ffffff" />
+                <Text className="ml-2 text-base font-semibold text-white">
+                  Download QR code
+                </Text>
+              </>
+            </TouchableOpacity>
           </View>
         )}
 
