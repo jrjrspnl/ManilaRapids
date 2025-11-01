@@ -5,25 +5,33 @@ import {
   Alert,
   Image,
   Modal,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 
 interface CameraComponentProps {
-  onPhotoTaken: (photoUri: string) => void;
+  onPhotoTaken?: (photoUri: string) => void;
+  onQRScanned?: (data: string) => void;
   visible: boolean;
   onClose: () => void;
+  mode?: "photo" | "qr";
 }
 
 const CameraComponent: React.FC<CameraComponentProps> = ({
   onPhotoTaken,
+  onQRScanned,
   visible,
   onClose,
+  mode = "photo",
 }) => {
-  const [facing, setFacing] = useState<"front" | "back">("front");
+  const [facing, setFacing] = useState<"front" | "back">(
+    mode === "qr" ? "back" : "front"
+  );
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState<string | null>(null);
+  const [scanned, setScanned] = useState(false);
   const cameraRef = useRef<CameraView>(null);
 
   if (!permission) {
@@ -54,6 +62,17 @@ const CameraComponent: React.FC<CameraComponentProps> = ({
     );
   }
 
+  const handleBarCodeScanned = ({ data }: { data: string }) => {
+    if (!scanned && onQRScanned) {
+      setScanned(true);
+      onQRScanned(data);
+      setTimeout(() => {
+        setScanned(false);
+        onClose();
+      }, 500);
+    }
+  };
+
   const takePicture = async () => {
     if (cameraRef.current) {
       try {
@@ -73,7 +92,7 @@ const CameraComponent: React.FC<CameraComponentProps> = ({
   };
 
   const confirmPicture = () => {
-    if (photo) {
+    if (photo && onPhotoTaken) {
       onPhotoTaken(photo);
       setPhoto(null);
       onClose();
@@ -84,6 +103,40 @@ const CameraComponent: React.FC<CameraComponentProps> = ({
     setFacing((current) => (current === "front" ? "back" : "front"));
   };
 
+  // QR Scanner Mode
+  if (mode === "qr") {
+    return (
+      <Modal visible={visible} animationType="slide">
+        <View style={StyleSheet.absoluteFillObject}>
+          <CameraView
+            ref={cameraRef}
+            style={StyleSheet.absoluteFillObject}
+            facing="back"
+            onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+            barcodeScannerSettings={{
+              barcodeTypes: ["qr"],
+            }}
+          />
+
+          <View className="absolute inset-0 items-center justify-center">
+            <View className="w-64 h-64 border-4 border-white rounded-2xl" />
+            <Text className="mt-4 text-lg font-semibold text-white">
+              Align QR code within frame
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            onPress={onClose}
+            className="absolute p-3 rounded-full top-12 right-4 bg-black/50"
+          >
+            <X size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    );
+  }
+
+  // Photo Mode (existing functionality)
   return (
     <Modal visible={visible} animationType="slide">
       <View className="flex-1 bg-black">
